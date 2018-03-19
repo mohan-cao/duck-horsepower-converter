@@ -48,14 +48,29 @@ function occurrences(string, subString, allowOverlapping) {
   return n;
 }
 
+var unicodeMap = {
+  "0️⃣": '0',
+  "1️⃣": "1",
+  "2️⃣": "2",
+  "3️⃣": "3",
+  "4️⃣": "4",
+  "5️⃣": "5",
+  "6️⃣": "6",
+  "7️⃣": "7",
+  "8️⃣": "8",
+  "9️⃣": "9",
+  "🔟": "10",
+  "💯": "100",
+  "🔞": "12",
+  "📆": "17",
+  "🔢": "1234"
+};
+
 function uniParseInt(int) {
-  var t1 = parseInt(int);
-  if (!isNaN(t1)) return t1;
-  if (int.indexOf("💯") != -1) return 100 * occurrences(int, "💯", false);
-  if (int.indexOf("🔞") != -1) return 12 * occurrences(int, "🔞", false);
-  if (int.indexOf("📆") != -1) return 17 * occurrences(int, "📆", false);
-  if (int.indexOf("🔟") != -1) return 10 * occurrences(int, "🔟", false);
-  if (int.indexOf("🔢") != -1) return 1234 * occurrences(int, "🔢", false);
+  int = _.split(int, '').map(function (e) {
+    return unicodeMap.hasOwnProperty(e) ? unicodeMap[e] : e;
+  }).join('');
+  return parseInt(int);
 }
 
 //name=what you're converting to, value=input, func=function that converts, alternativenames=[] 
@@ -90,6 +105,9 @@ function convertToXPower() {
       case 294058330:
       case -683705998:
       case -839019812:
+      case -337606997:
+      case 581647043:
+      case -259354835:
         return "Rude";
       case -1413183150:
       case -83142732:
@@ -135,8 +153,8 @@ var Input = function (_React$Component) {
       var value = this.props.value;
       var errorMessage = this.props.error;
       return React.createElement(
-        "form",
-        null,
+        "div",
+        { className: "input-field" },
         React.createElement(
           "label",
           { style: { display: 'block' }, htmlFor: this.props.name },
@@ -145,7 +163,7 @@ var Input = function (_React$Component) {
         React.createElement("input", {
           type: "text", name: this.props.name,
           style: { width: 290 + name.length + 'px' },
-          placeholder: "Enter a number of " + this.props.name + "s (aka " + this.props.name + "power)",
+          placeholder: "Enter a number of " + this.props.name + "s (" + this.props.name + "power)",
           value: value,
           onChange: this.handleChange
         }),

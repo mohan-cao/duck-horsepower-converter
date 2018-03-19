@@ -40,14 +40,27 @@ function occurrences(string, subString, allowOverlapping) {
     return n;
 }
 
+const unicodeMap = {
+  "0️⃣": '0',
+  "1️⃣": "1",
+  "2️⃣": "2",
+  "3️⃣": "3",
+  "4️⃣": "4",
+  "5️⃣": "5",
+  "6️⃣": "6",
+  "7️⃣": "7",
+  "8️⃣": "8",
+  "9️⃣": "9",
+  "🔟": "10",
+  "💯": "100",
+  "🔞": "12",
+  "📆": "17",
+  "🔢": "1234"
+}
+
 function uniParseInt(int) {
-  var t1 = parseInt(int);
-  if (!isNaN(t1)) return t1;
-  if (int.indexOf("💯") != -1) return 100 * occurrences(int, "💯", false);
-  if (int.indexOf("🔞") != -1) return 12 * occurrences(int, "🔞", false);
-  if (int.indexOf("📆") != -1) return 17 * occurrences(int, "📆", false);
-  if (int.indexOf("🔟") != -1) return 10 * occurrences(int, "🔟", false);
-  if (int.indexOf("🔢") != -1) return 1234 * occurrences(int, "🔢", false);
+  int = _.split(int,'').map(e => unicodeMap.hasOwnProperty(e) ? unicodeMap[e] : e).join('');
+  return parseInt(int);
 }
 
 //name=what you're converting to, value=input, func=function that converts, alternativenames=[] 
@@ -69,6 +82,9 @@ function convertToXPower(name="", value="", func=x=>x, alternativenames=[]) {
       case 294058330:
       case -683705998:
       case -839019812:
+      case -337606997:
+      case 581647043:
+      case -259354835:
         return "Rude";
       case -1413183150:
       case -83142732:
@@ -105,7 +121,7 @@ class Input extends React.Component {
     const value = this.props.value;
     const errorMessage = this.props.error;
     return (
-      <form>
+      <div className={"input-field"}>
       <label style={ { display:'block' } } htmlFor={ this.props.name }>
         {this.props.name[0].toUpperCase() +
           this.props.name.substr(1, this.props.name.length) +
@@ -117,7 +133,7 @@ class Input extends React.Component {
           placeholder={
             "Enter a number of " +
             this.props.name +
-            "s (aka " +
+            "s (" +
             this.props.name +
             "power)"
           }
@@ -125,7 +141,7 @@ class Input extends React.Component {
           onChange={this.handleChange}
         />
         {errorMessage}
-      </form>
+      </div>
     );
   }
 }
