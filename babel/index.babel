@@ -1,0 +1,186 @@
+/**
+  Williamson, M. R., Dial, K. P., & Biewener, A. A. (2001). Pectoralis muscle performance during ascending and slow level flight in mallards (Anas platyrhynchos). Journal of Experimental Biology, 204(3), 495-507.
+  Lokemoen, J. T., Johnson, D. H., & Sharp, D. E. (1990). Weights of wild mallard Anas platyrhynchos, gadwall A. strepera, and blue-winged teal A. discors during the breeding season. Wildfowl, 41(41), 122-132.
+  */
+const dHp = 1.2 * 17 / 745.7;
+const hDp = 745.7 / (1.2 * 17);
+
+// um thanks Barak (https://stackoverflow.com/a/8831937)
+String.prototype.hashCode = function() {
+    var hash = 0;
+    if (this.length == 0) {
+        return hash;
+    }
+    for (var i = 0; i < this.length; i++) {
+        char = this.charCodeAt(i);
+        hash = ((hash<<5)-hash)+char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+// thanks friend Vitim.us - https://stackoverflow.com/a/7924240
+function occurrences(string, subString, allowOverlapping) {
+
+    string += "";
+    subString += "";
+    if (subString.length <= 0) return (string.length + 1);
+
+    var n = 0,
+        pos = 0,
+        step = allowOverlapping ? 1 : subString.length;
+
+    while (true) {
+        pos = string.indexOf(subString, pos);
+        if (pos >= 0) {
+            ++n;
+            pos += step;
+        } else break;
+    }
+    return n;
+}
+
+function uniParseInt(int) {
+  var t1 = parseInt(int);
+  if (!isNaN(t1)) return t1;
+  if (int.indexOf("💯") != -1) return 100 * occurrences(int, "💯", false);
+  if (int.indexOf("🔞") != -1) return 12 * occurrences(int, "🔞", false);
+  if (int.indexOf("📆") != -1) return 17 * occurrences(int, "📆", false);
+  if (int.indexOf("🔟") != -1) return 10 * occurrences(int, "🔟", false);
+  if (int.indexOf("🔢") != -1) return 1234 * occurrences(int, "🔢", false);
+}
+
+//name=what you're converting to, value=input, func=function that converts, alternativenames=[] 
+function convertToXPower(name="", value="", func=x=>x, alternativenames=[]) {
+  if (!value) return '';
+  const intVal = uniParseInt(value);
+  if (typeof(value) == "string" && isNaN(intVal)) {
+    value = value.toLowerCase().trim();
+    if (value.indexOf(name.toLowerCase()) != -1 || alternativenames.some(x => value.indexOf(x) != -1)) {
+      return "Good try###" + convertToXPower(name, occurrences(value, name, false), func) + convertToXPower(name, alternativenames.map(x => occurrences(value, x, false)).reduce((x,y) => x+y,0), func);
+    }
+    var wp = value.hashCode();
+    switch(wp) {
+      case 1070909254:
+      case 1070919158:
+        return "Hey, that's not nice";
+      case 507491739:
+        return "No cheating";
+      case 294058330:
+      case -683705998:
+      case -839019812:
+        return "Rude";
+      case -1413183150:
+      case -83142732:
+      case -1187192055:
+      case 3522662:
+        return "Me too";
+    }
+    return "That's not a " + name;
+  }
+  if (intVal < 0) return "Negative " + name + "s only exist on film";
+  if (intVal < 1) return "How do you plan on getting less than 1 " + name + "?";
+  return Math.round(func(intVal) * 100) / 100;
+}
+
+// return [error, result]
+function convertResultToPair(result) {
+  if (result === '') return ['', ''];
+  if (typeof(result) == "number") return ['', result];
+  if (result.indexOf("###") != -1) return result.split("###");
+  return [result, ''];
+}
+
+class Input extends React.Component {
+  constructor() {
+    super();
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(e) {
+    this.props.onValueChange(e.target.value);
+  }
+
+  render() {
+    const value = this.props.value;
+    const errorMessage = this.props.error;
+    return (
+      <form>
+      <label style={ { display:'block' } } htmlFor={ this.props.name }>
+        {this.props.name[0].toUpperCase() +
+          this.props.name.substr(1, this.props.name.length) +
+          "s"}
+      </label>
+      <input
+          type="text" name={ this.props.name }
+          style={ { width: (290+name.length) +'px' } }
+          placeholder={
+            "Enter a number of " +
+            this.props.name +
+            "s (aka " +
+            this.props.name +
+            "power)"
+          }
+          value={value}
+          onChange={this.handleChange}
+        />
+        {errorMessage}
+      </form>
+    );
+  }
+}
+
+class DuckConverter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      changed: 'duck',
+      value: ''
+    };
+    this.handleDuckChange = this.handleDuckChange.bind(this)
+    this.handleHorseChange = this.handleHorseChange.bind(this)
+  }
+
+  handleDuckChange(value) {
+    this.setState({
+      changed: "duck",
+      value: value
+    })
+  }
+  
+  handleHorseChange(value) {
+    this.setState({
+      changed: "horse",
+      value: value
+    })
+  }
+
+  render() {
+    var errorMessage = "";
+    var duckpower = "";
+    var horsepower = "";
+    if (this.state.changed == "duck") {
+      const duckpowerResult = convertToXPower("duck", this.state.value, f => f * dHp, ["🦆"]);
+      duckpower = this.state.value;
+      horsepower = convertResultToPair(duckpowerResult)[1];
+      errorMessage = convertResultToPair(duckpowerResult)[0];
+    } else if (this.state.changed == "horse") {
+      const horsepowerResult = convertToXPower("horse", this.state.value, f => f * hDp, ["🐎","🏇","🐴"]);
+      horsepower = this.state.value;
+      duckpower = convertResultToPair(horsepowerResult)[1];
+      errorMessage = convertResultToPair(horsepowerResult)[0];
+    }
+    return (
+      <div style={ { display: 'flex', flexFlow: 'column nowrap', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100vw'} }>
+        <div style={{ padding: '20px 50px 30px 50px', background: 'rgba(255,255,255,0.95)'}}>
+        <h1 style={{fontSize: '1.5em'}}>Duck/Horsepower Converter</h1>
+        <Input name="duck" value={duckpower} onValueChange={this.handleDuckChange} />
+        <Input name="horse" value={horsepower} onValueChange={this.handleHorseChange} />
+        <div>{(errorMessage)?<span style={{color: 'red'}}>{errorMessage}</span>:<span>&nbsp;</span>}</div>
+        </div>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<DuckConverter />, document.getElementById("root"));

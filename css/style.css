@@ -1,0 +1,21 @@
+.small {
+  height: 1em;
+}
+.flex-center {
+  height:100vh;
+  width:100vw;
+  display:flex;
+  position:fixed;
+  align-items:center;
+  justify-content:center;
+}
+.translucent-white {
+  background: rgba(255,190,160,0.8);
+}
+h1.loading {
+  color: rgb(249,66,58);
+  font-family: 'Handlee', cursive;
+}
+body {
+  background-image: url('https://i.imgur.com/sBoS8EG.jpg')
+}
